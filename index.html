@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CSC134 Chapter 8 Interactive Learning</title>
+<style>
+:root{--p:#4f46e5;--p2:#7c3aed;--bg:#f6f7fb;--card:#fff;--text:#172033;--muted:#657089;--good:#15803d;--bad:#b91c1c;--warn:#b45309}
+*{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text)}
+header{background:linear-gradient(135deg,var(--p),var(--p2));color:white;padding:28px 18px}
+.wrap{max-width:1050px;margin:auto}.top{display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap}
+h1{margin:0;font-size:clamp(1.6rem,4vw,2.7rem)} .sub{opacity:.9;margin-top:6px}.badge{background:#ffffff22;border:1px solid #ffffff55;padding:8px 12px;border-radius:999px}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin:18px auto}.navbtn{border:0;background:white;padding:11px 14px;border-radius:12px;cursor:pointer;box-shadow:0 2px 8px #00000012;font-weight:650}.navbtn.active{background:var(--p);color:white}
+main{padding:0 18px 40px}.screen{display:none}.screen.active{display:block}.card{background:var(--card);border-radius:18px;padding:20px;margin:14px 0;box-shadow:0 5px 20px #17203312}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.topic{cursor:pointer;border:2px solid transparent;transition:.15s}.topic:hover{transform:translateY(-2px);border-color:#c7d2fe}
+.icon{font-size:2rem}.small{color:var(--muted);font-size:.94rem}.progress{height:12px;background:#e5e7eb;border-radius:999px;overflow:hidden}.bar{height:100%;background:linear-gradient(90deg,var(--p),#06b6d4);width:0}
+button.action{border:0;background:var(--p);color:white;padding:11px 16px;border-radius:12px;font-weight:700;cursor:pointer}button.secondary{background:#e8eafc;color:#3730a3}button.hint{background:#fff7ed;color:#9a3412;border:1px solid #fed7aa}
+.choice{display:block;width:100%;text-align:left;margin:9px 0;padding:13px;border:2px solid #e5e7eb;background:white;border-radius:12px;cursor:pointer}.choice:hover{border-color:#a5b4fc}.choice.correct{border-color:#22c55e;background:#f0fdf4}.choice.wrong{border-color:#ef4444;background:#fef2f2}
+.feedback{margin-top:12px;padding:12px;border-radius:12px;display:none}.feedback.good{display:block;background:#ecfdf5;color:#166534}.feedback.bad{display:block;background:#fef2f2;color:#991b1b}.feedback.info{display:block;background:#eff6ff;color:#1e40af}
+.flow{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:20px 0}.step{padding:15px 18px;border-radius:14px;background:#eef2ff;font-weight:800}.arrow{font-size:1.4rem}
+.flip{min-height:145px}.flip strong{font-size:1.08rem}.tag{display:inline-block;background:#eef2ff;color:#3730a3;border-radius:999px;padding:5px 9px;margin:3px;font-size:.84rem}
+.stat{font-size:1.7rem;font-weight:850}.center{text-align:center}.hidden{display:none!important}.matchrow{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:center;margin:8px 0}.matchrow select{padding:10px;border-radius:10px;border:1px solid #cbd5e1;width:100%}
+footer{text-align:center;color:var(--muted);padding:25px}.heroBtns{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+@media(max-width:600px){.matchrow{grid-template-columns:1fr}.card{padding:16px}}
+.student-form{display:grid;grid-template-columns:1fr 1fr;gap:12px}.student-form label{font-weight:700}.student-form input{width:100%;padding:12px;margin-top:6px;border:1px solid #cbd5e1;border-radius:10px;font-size:16px}
+.result-table{width:100%;border-collapse:collapse;margin:14px 0}.result-table th,.result-table td{border:1px solid #d1d5db;padding:9px;text-align:left}.result-table th{background:#f3f4f6}
+.certificate{border:3px solid #4f46e5;padding:24px;border-radius:18px;background:white}.certificate h2{color:#3730a3}
+.syncbox{margin-top:14px;padding:12px;border-radius:12px;background:#f8fafc;border:1px solid #cbd5e1}.syncok{background:#ecfdf5;border-color:#86efac;color:#166534}.syncwarn{background:#fff7ed;border-color:#fdba74;color:#9a3412}
+@media print{header,nav,footer,#challenge .card:first-child,.no-print{display:none!important}body{background:white}.wrap{max-width:none}.screen{display:none!important}#challenge.screen{display:block!important}#challengeBox .card{display:none!important}#challengeBox #finalResult{display:block!important;box-shadow:none;margin:0;padding:0}.certificate{border:2px solid #333}.action{display:none!important}}
+</style>
+
+<style id="mobile-ready-enhancements">
+html{-webkit-text-size-adjust:100%;box-sizing:border-box}
+*,*:before,*:after{box-sizing:inherit}
+body{margin:0;max-width:100%;overflow-x:hidden}
+img,svg,video,canvas{max-width:100%;height:auto}
+button,input,select,textarea{font:inherit}
+button,.btn,input,select{min-height:48px}
+button,.btn{touch-action:manipulation}
+input,select,textarea{font-size:16px!important;max-width:100%}
+.card,.panel,.topic-card,.question-card,.result-card{max-width:100%}
+pre,code,.submission-code{overflow-wrap:anywhere;word-break:break-word}
+@media (max-width:700px){
+  body{font-size:16px}
+  header,main,.container,.wrap,.content{width:100%!important;max-width:100%!important;padding-left:14px!important;padding-right:14px!important}
+  nav,.nav,.tabs,.nav-buttons{display:flex!important;flex-wrap:wrap!important;gap:8px!important}
+  nav button,.nav button,.tabs button,.nav-buttons button{flex:1 1 calc(50% - 8px);min-width:120px}
+  .grid,.topics-grid,.cards,.row,.form-row{grid-template-columns:1fr!important;flex-direction:column!important}
+  .option,.answer-option,.choice,.quiz-option{width:100%!important;min-height:52px!important;text-align:left!important;padding:12px 14px!important;margin:7px 0!important}
+  .card,.panel,.topic-card,.question-card,.result-card{width:100%!important;margin-left:0!important;margin-right:0!important;padding:16px!important}
+  h1{font-size:clamp(1.55rem,7vw,2rem)!important;line-height:1.15}
+  h2{font-size:clamp(1.3rem,6vw,1.65rem)!important}
+  table{display:block;max-width:100%;overflow-x:auto}
+}
+@media (max-width:420px){
+  nav button,.nav button,.tabs button,.nav-buttons button{flex-basis:100%}
+  header,main,.container,.wrap,.content{padding-left:10px!important;padding-right:10px!important}
+}
+@supports(padding:max(0px)){
+ body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);padding-bottom:env(safe-area-inset-bottom)}
+}
+</style>
+
+</head>
+<body>
+<header><div class="wrap top"><div><h1>CSC134 • Chapter 8</h1><div class="sub">Communications and Networks — Interactive Learning</div></div><div class="badge">Learn • Practice • Master</div></div></header>
+<main class="wrap">
+<nav>
+<button class="navbtn active" data-screen="home">🏠 Home</button>
+<button class="navbtn" data-screen="learn">📘 Learn</button>
+<button class="navbtn" data-screen="practice">🧠 Practice</button>
+<button class="navbtn" data-screen="classify">🎮 Classify</button>
+<button class="navbtn" data-screen="challenge">🏆 Challenge</button>
+</nav>
+
+<section id="home" class="screen active">
+<div class="card"><h2>Student Registration</h2>
+<p>Enter your details before beginning. Your name and Student ID will appear on the final completion result.</p>
+<div class="student-form">
+<label>Student Name<input id="studentName" type="text" placeholder="e.g. Nur Aisyah" autocomplete="name"></label>
+<label>Student ID<input id="studentId" type="text" placeholder="e.g. 2026123456" autocomplete="off"></label>
+</div>
+<div id="studentMsg" class="feedback"></div>
+<div class="heroBtns"><button class="action" onclick="saveStudent()">Save & Start Learning</button></div></div>
+<div class="card"><h2>Welcome to Chapter 8</h2>
+<p>This app supports Chapter 8: Communications and Networks. Work through short lessons, check your understanding, classify communication and networking concepts, then attempt randomized practice and the final challenge.</p>
+<div class="heroBtns"><button class="action" onclick="go('learn')">Start Learning</button><button class="action secondary" onclick="go('practice')">Quick Practice</button></div></div>
+<div class="grid">
+<div class="card center"><div class="stat" id="bestScore">0%</div><div class="small">Best Challenge Score</div></div>
+<div class="card center"><div class="stat" id="attempts">0</div><div class="small">Challenge Attempts</div></div>
+<div class="card center"><div class="stat" id="mastery">0/8</div><div class="small">Topics Opened</div></div>
+</div>
+<div class="card"><h3>Your progress</h3><div class="progress"><div class="bar" id="progressBar"></div></div><p class="small" id="progressText">Start with Topic 1.</p></div>
+</section>
+
+<section id="learn" class="screen">
+<div class="card"><h2>📘 Learning Path</h2><p>Select a topic. Each lesson is concise and based on the Chapter 7 learning outcomes.</p></div>
+<div id="topicGrid" class="grid"></div>
+<div id="lessonBox"></div>
+</section>
+
+<section id="practice" class="screen">
+<div class="card"><h2>🧠 Random Practice</h2><p>Questions change order each time. Use <b>Hint</b> if you need help. An explanation appears after you answer.</p>
+<button class="action" onclick="startPractice()">New Practice Set</button></div>
+<div id="practiceBox"></div>
+</section>
+
+<section id="classify" class="screen">
+<div class="card"><h2>🎮 Communications & Networks Classifier</h2><p>Match each description to the correct Chapter 8 communication, network, topology, protocol, or security concept.</p></div>
+<div class="card" id="matchBox"></div>
+</section>
+
+<section id="challenge" class="screen">
+<div class="card"><h2>🏆 Chapter 8 Challenge</h2><p>30 questions randomly selected for each attempt. Complete the challenge to generate a personalized result screen with your Name, Student ID, score, date/time, learning progress and a unique submission code.</p><button class="action" onclick="startChallenge()">Start Challenge</button></div>
+<div id="challengeBox"></div>
+</section>
+</main>
+<footer>CSC134 • Computers and Information Processing • Chapter 8 Learning App • Central Class Record Edition</footer>
+
+<script>
+
+const LECTURER_ENDPOINT = "https://script.google.com/macros/s/AKfycbxjpDewtYLBm-GDyO5E_eP4M4WtIHprNQk5P8rGwZ1pafmST9RXo0Ux5WjrvONeCuw7/exec";
+function centralEnabled(){return LECTURER_ENDPOINT.startsWith("https://script.google.com/")}
+let student = JSON.parse(localStorage.getItem("cscCh8Student")||'{"name":"","id":""}');
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]))}
+function loadStudent(){
+ document.getElementById("studentName").value=student.name||"";
+ document.getElementById("studentId").value=student.id||"";
+}
+function saveStudent(){
+ let name=document.getElementById("studentName").value.trim(), id=document.getElementById("studentId").value.trim();
+ let m=document.getElementById("studentMsg");
+ if(name.length<2 || id.length<3){m.className="feedback bad";m.textContent="Please enter both your full name and Student ID.";return false}
+ student={name,id};localStorage.setItem("cscCh8Student",JSON.stringify(student));
+ m.className="feedback good";m.textContent="Student details saved. You may begin the learning activities.";
+ setTimeout(()=>go("learn"),500);return true
+}
+function requireStudent(){
+ student=JSON.parse(localStorage.getItem("cscCh8Student")||'{"name":"","id":""}');
+ if(!student.name||!student.id){go("home");let m=document.getElementById("studentMsg");m.className="feedback bad";m.textContent="Please enter your Name and Student ID before starting the final challenge.";return false}
+ return true
+}
+
+async function sendToLecturer(result){
+ const status=document.getElementById("centralStatus");
+ if(!centralEnabled()){
+   if(status){status.className="syncbox syncwarn";status.innerHTML="<b>Central record not configured yet.</b> This result is saved locally and can still be printed. Lecturer: add the Google Apps Script Web App URL to LECTURER_ENDPOINT in index.html."}
+   return;
+ }
+ if(status){status.className="syncbox";status.textContent="Sending result to lecturer record…"}
+ const payload={
+   course:"CSC134",chapter:"Chapter 8 - Communications and Networks",
+   name:result.name,studentId:result.id,score:result.score,correct:result.correct,total:30,
+   completedAt:new Date().toISOString(),clientAttempt:result.attempt,submissionCode:result.code,
+   topicsOpened:result.topics
+ };
+ try{
+   await fetch(LECTURER_ENDPOINT,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload)});
+   if(status){status.className="syncbox syncok";status.innerHTML="<b>Submission sent.</b> The result has been sent to the lecturer-controlled class record. Keep the PDF/result screen as your submission evidence."}
+   localStorage.setItem("cscCh8LastCentralSend",JSON.stringify(payload));
+ }catch(err){
+   if(status){status.className="syncbox syncwarn";status.innerHTML="<b>Could not send automatically.</b> Check the Internet connection and keep the PDF/result screen. You can use “Send Again” below."}
+ }
+}
+function resendLast(){
+ const raw=localStorage.getItem("cscCh8LastResult");if(!raw)return;
+ sendToLecturer(JSON.parse(raw));
+}
+
+function submissionCode(name,id,pct){
+ let s=(name+"|"+id+"|"+pct+"|"+new Date().toISOString().slice(0,10)).toUpperCase(),h=0;
+ for(let i=0;i<s.length;i++)h=((h<<5)-h+s.charCodeAt(i))|0;
+ return "CSC134-"+Math.abs(h).toString(36).toUpperCase().padStart(6,"0").slice(0,6);
+}
+
+const topics=[{"icon":"📡","title":"1. Connectivity & Communication Systems","html":"<h3>Connected computing</h3><p><b>Computer communication</b> means exchanging data, programs, or information between computers and devices. <b>Connectivity</b> links people and resources through computer networks.</p><p>A communication system transfers data from one location to another. Its basic elements are <b>sending/receiving devices, connection devices, transmission specifications, and a communication channel</b>. Wireless devices have greatly expanded when and where users can connect.</p>"},{"icon":"🔌","title":"2. Communication Channels","html":"<h3>Physical and wireless paths</h3><p>A <b>communication channel</b> carries data between devices. Physical channels use a material path such as <b>twisted-pair, coaxial, or fiber-optic cable</b>. Fiber-optic cable uses tiny glass fibers and supports fast, reliable transmission.</p><p>Wireless channels send signals through the air. Examples include <b>Bluetooth, Wi-Fi, microwave, cellular, satellite, infrared, and GPS-related wireless communication</b>. Infrared is a short-range line-of-sight technology.</p>"},{"icon":"📶","title":"3. Connection Devices & Services","html":"<h3>Connecting to communication services</h3><p>A <b>modem</b> supports communication by converting signals: modulation converts digital to analog, while demodulation converts analog to digital. Transfer rate describes how quickly data is transmitted.</p><p>Connection options in the chapter include <b>DSL, cable, satellite, cellular, fiber-optic service, and older dial-up service</b>. Different services use different communication media and provide different levels of speed, availability, and mobility.</p>"},{"icon":"⚡","title":"4. Data Transmission & Protocols","html":"<h3>Capacity and communication rules</h3><p><b>Bandwidth</b> describes how much information a communication channel can carry in a given time. The chapter distinguishes voiceband, medium band, and broadband transmission.</p><p><b>Protocols</b> are rules for exchanging data. Examples include <b>HTTPS</b> for protected Web data transfer and <b>TCP/IP</b>, the widely used Internet protocol suite. TCP/IP uses IP addresses for identification, DNS for name-to-address translation, and packetization to divide messages into smaller packets for transmission.</p>"},{"icon":"🖧","title":"5. Network Fundamentals","html":"<h3>Devices and roles in a network</h3><p>A <b>network</b> connects two or more computers or devices so they can exchange information and share resources. A connected device is a <b>node</b>. A <b>client</b> requests resources, while a <b>server</b> provides resources.</p><p>Other key terms include <b>router</b> (forwards packets), <b>switch</b> (coordinates data flow), <b>NIC</b> (connects a computer to a network), <b>network operating system</b>, and <b>network administrator</b>.</p>"},{"icon":"🌍","title":"6. Network Types","html":"<h3>Networks by coverage and purpose</h3><p>Networks differ in geographical size. A <b>LAN</b> covers a limited local area; a <b>home network</b> lets household devices share resources; and a <b>WLAN</b> is a wireless local area network that commonly uses an access point.</p><p>A <b>PAN</b> works over a very small personal area, a <b>MAN</b> spans a city-scale area, and a <b>WAN</b> covers very large geographical areas. The Internet is an example of an extremely wide network.</p>"},{"icon":"⭐","title":"7. Network Architecture & Strategies","html":"<h3>How networks are arranged and resources shared</h3><p><b>Network topology</b> describes the physical arrangement of a network. The chapter covers <b>bus, ring, star, tree, and mesh</b> topologies. A star connects devices through a central switch, while a mesh provides multiple possible paths between nodes.</p><p>Network strategy describes how resources are shared. In a <b>client/server</b> network, central servers provide services. In a <b>peer-to-peer (P2P)</b> network, nodes have equal authority and can act as both clients and servers.</p>"},{"icon":"🛡️","title":"8. Organizational Networks & Security","html":"<h3>Private networks and protection</h3><p>An <b>intranet</b> is a private network within an organization. An <b>extranet</b> extends limited network access to trusted outside organizations or partners.</p><p>Common security technologies include a <b>firewall</b> to control network access, an <b>intrusion detection system (IDS)</b> to analyze network traffic, and a <b>virtual private network (VPN)</b> to create a secure private connection across a wider network.</p>"}];
+
+const bank=[{"level":"C1","q":"What is computer communication?","o":["Sharing data and information between computers","Formatting a storage drive","Printing only local documents","Installing an operating system"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"Computer communication involves exchanging data, programs, or information between devices."},{"level":"C1","q":"What does connectivity use to link people and resources?","o":["Computer networks","Only local folders","A single printer cable","Standalone software"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"Connectivity links people and resources through networks."},{"level":"C1","q":"Which element carries a message between communicating devices?","o":["Communication channel","Spreadsheet","File manager","Compiler"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"The communication channel carries the transmitted data."},{"level":"C1","q":"Which is a physical communication medium?","o":["Twisted-pair cable","Bluetooth","Infrared","Wi-Fi"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"Twisted-pair is a wired physical channel."},{"level":"C1","q":"Which cable has a single solid copper core?","o":["Coaxial cable","Fiber-optic cable","Twisted-pair cable","Infrared link"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"Coaxial cable uses a central copper core."},{"level":"C1","q":"Which medium uses tiny glass fibers to carry signals?","o":["Fiber-optic cable","Coaxial cable","Twisted-pair cable","Bluetooth"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"Fiber-optic cable transmits through glass fibers."},{"level":"C1","q":"Which wireless technology is designed for short-range device communication such as headsets?","o":["Bluetooth","Satellite","T1","Fiber optic"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"Bluetooth is a short-range radio communication standard."},{"level":"C1","q":"Which wireless technology is commonly used for home, office, and university wireless networking?","o":["Wi-Fi","Coaxial","DSL cable only","T3"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"Wi-Fi supports short-range wireless network access."},{"level":"C1","q":"Which technology uses satellites as microwave relay stations?","o":["Satellite communication","Twisted pair","Ethernet cable","USB"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"Satellite systems relay microwave signals through satellites."},{"level":"C1","q":"What is the term for sending data to a satellite?","o":["Uplink","Downlink","Packetization","Demodulation"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"Uplink means transmitting from Earth toward a satellite."},{"level":"C1","q":"Which wireless method commonly requires an unobstructed line of sight over short distances?","o":["Infrared","Bluetooth","DSL","Coaxial"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"Infrared communication commonly requires line of sight."},{"level":"C1","q":"What does GPS primarily help determine?","o":["Geographic location","File size","Network password","Processor speed"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"GPS is used to determine geographic location."},{"level":"C1","q":"What does modem stand for?","o":["Modulator-demodulator","Mobile-demonstrator","Module-demultiplexer","Mode-decoder"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"Modem is short for modulator-demodulator."},{"level":"C1","q":"What is modulation?","o":["Converting digital signals to analog signals","Converting analog signals to digital signals","Dividing messages into packets","Translating domain names"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"Modulation converts digital information into an analog signal."},{"level":"C1","q":"What is demodulation?","o":["Converting analog signals to digital signals","Converting digital signals to analog signals","Encrypting a file","Creating a network"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"Demodulation converts received analog signals back to digital form."},{"level":"C1","q":"Which Internet connection service uses standard telephone lines for high-speed access?","o":["DSL","Satellite only","Bluetooth","PAN"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"DSL uses existing telephone lines for high-speed connections."},{"level":"C1","q":"Which connection service uses existing television coaxial cable?","o":["Cable Internet","DSL","Bluetooth","Infrared"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"Cable Internet service uses cable-TV infrastructure."},{"level":"C1","q":"What does bandwidth measure?","o":["Capacity of a communication channel","Number of files in a folder","Screen size","Computer battery level"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"Bandwidth represents how much information can move through a channel in a given time."},{"level":"C1","q":"What is a protocol?","o":["A set of communication rules","A network cable","A computer case","A type of printer"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"Protocols define rules and procedures for exchanging data."},{"level":"C1","q":"Which protocol is used to protect transfer of sensitive Web data?","o":["HTTPS","PAN","NIC","GPS"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"HTTPS provides protected Web communication."},{"level":"C1","q":"Which protocol suite is widely used for Internet communication?","o":["TCP/IP","HDMI","USB","RAID"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"TCP/IP is the main Internet communication protocol suite."},{"level":"C1","q":"What does DNS do in TCP/IP communication?","o":["Converts text-based names to IP addresses","Increases monitor resolution","Creates passwords","Compresses video"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"DNS translates human-readable names to IP addresses."},{"level":"C1","q":"What is packetization?","o":["Breaking a message into smaller packets","Combining computers into one device","Turning digital into analog","Blocking network traffic"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"Packetization divides a message into manageable packets for transmission."},{"level":"C1","q":"What is a network?","o":["Connected computers/devices that exchange information and share resources","A single offline computer","A word-processing document","A printer queue"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"A network connects multiple devices for communication and resource sharing."},{"level":"C1","q":"What is any device connected to a network called?","o":["Node","Packet","Protocol","Channel"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"A connected network device is called a node."},{"level":"C1","q":"Which network device forwards or routes data packets?","o":["Router","Monitor","Scanner","Keyboard"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"A router forwards packets between network destinations."},{"level":"C1","q":"Which device is commonly the central node coordinating data flow in a LAN?","o":["Switch","Printer","Microphone","Projector"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"A switch coordinates data flow among connected network devices."},{"level":"C1","q":"What does NIC stand for?","o":["Network Interface Card","Network Internet Channel","Node Integration Cable","Network Information Code"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"NIC means Network Interface Card."},{"level":"C1","q":"Which network type covers a small local area such as a room or building?","o":["LAN","WAN","MAN","Satellite network"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"A LAN covers a limited local geographical area."},{"level":"C1","q":"Which security technology controls access to a network?","o":["Firewall","Spreadsheet","Bluetooth headset","Word processor"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"A firewall controls network access and helps block external threats."},{"level":"C2","q":"A lecturer connects a laptop to a projector network without using any cable. Which channel category is being used?","o":["Wireless connection","Physical cable connection","Optical disc","Local storage"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"A connection through the air is wireless."},{"level":"C2","q":"A company needs the fastest and more reliable wired medium among twisted-pair, coaxial, and fiber. Which should it choose?","o":["Fiber-optic cable","Twisted-pair cable","Coaxial cable","Infrared"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"The chapter identifies fiber optic as faster and more reliable than coaxial."},{"level":"C2","q":"A student connects wireless earbuds to a phone over a few metres. Which technology best fits?","o":["Bluetooth","Satellite","MAN","T3"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"Bluetooth is designed for short-range wireless device links."},{"level":"C2","q":"A campus provides wireless Internet access around classrooms through access points. Which technology is most appropriate?","o":["Wi-Fi","Coaxial TV only","Dial-up","Infrared remote only"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"Wi-Fi is widely used for local wireless Internet access."},{"level":"C2","q":"A remote location needs Internet service where wired infrastructure is difficult to install. Which chapter option may provide broad geographic availability?","o":["Satellite service","Twisted-pair LAN only","Infrared","P2P software"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"Satellite service can reach locations where wired options are limited."},{"level":"C2","q":"A signal travels from a ground station toward an orbiting satellite. What is this transmission called?","o":["Uplink","Downlink","Demodulation","Baseband"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"Sending data to a satellite is an uplink."},{"level":"C2","q":"A receiver obtains data transmitted from a satellite. What is this called?","o":["Downlink","Uplink","Modulation","Packetization"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"Receiving data from a satellite is a downlink."},{"level":"C2","q":"A device receives an analog communication signal and must convert it for computer processing. Which process is required?","o":["Demodulation","Modulation","Packetization","Routing"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"Demodulation converts analog signals to digital form."},{"level":"C2","q":"A home user wants high-speed Internet over an existing telephone line. Which service best matches?","o":["DSL","Cable TV Internet","Satellite only","Bluetooth"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"DSL provides high-speed access using telephone lines."},{"level":"C2","q":"A home already has cable-TV infrastructure and wants Internet through that same medium. Which service fits?","o":["Cable Internet","DSL","Infrared","PAN"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"Cable Internet uses coaxial cable infrastructure."},{"level":"C2","q":"A video conference needs a communication channel capable of carrying large amounts of data. Which characteristic is most important?","o":["High bandwidth","Low screen brightness","Small file name","Short password"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"High-bandwidth channels can carry more data and better support video."},{"level":"C2","q":"A secure website is transferring sensitive account information. Which protocol should appear in the Web connection?","o":["HTTPS","PAN","GPS","NIC"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"HTTPS is used to protect sensitive Web data transfer."},{"level":"C2","q":"A user enters a text-based website name and the network finds the corresponding numerical address. Which service performed the translation?","o":["DNS","VPN","IDS","Bluetooth"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"DNS translates text-based domain names into IP addresses."},{"level":"C2","q":"A long Internet message is divided into small pieces and later reassembled at the destination. Which TCP/IP feature is illustrated?","o":["Packetization","Modulation","Bandwidth","Topology"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"Packetization breaks messages into packets and supports reassembly."},{"level":"C2","q":"A workstation requests a shared file from another computer that provides resources to many users. What role does the workstation have?","o":["Client","Server","Router","Switch"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"A client requests and uses resources from other nodes."},{"level":"C2","q":"A computer stores shared files and provides them to other network users. What role is it performing?","o":["Server","Client only","Channel","Protocol"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"A server supplies resources to other nodes."},{"level":"C2","q":"Two separate networks need a device that can forward packets between them. Which device is most suitable?","o":["Router","Monitor","Keyboard","Scanner"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"Routers forward packets between networks."},{"level":"C2","q":"A home connects several devices wirelessly so they can share one Internet connection. Which description best fits?","o":["Home WLAN","MAN","WAN only","Satellite relay"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"A wireless home LAN allows nearby household devices to share resources."},{"level":"C2","q":"A smartwatch communicates with a phone over a very small personal area. Which network type best fits?","o":["PAN","MAN","WAN","City network"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"A PAN covers a very small area around a person."},{"level":"C2","q":"A network links offices across one city. Which network type best fits?","o":["MAN","PAN","LAN","Bluetooth"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"A MAN covers a metropolitan or city-scale area."},{"level":"C2","q":"A company network connects branches across several countries. Which type best fits?","o":["WAN","PAN","Single LAN","Home network"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"A WAN covers large national or international areas."},{"level":"C2","q":"All computers in a lab connect directly to one central switch. Which topology is being used?","o":["Star","Ring","Bus","Mesh"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"A star topology connects devices through a central switch."},{"level":"C2","q":"Each device connects to two neighbouring devices, forming a closed path. Which topology is described?","o":["Ring","Star","Tree","PAN"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"A ring connects each node to two neighbours in a loop."},{"level":"C2","q":"A network needs alternate routes so data can bypass a failed link. Which topology is most suitable?","o":["Mesh","Bus","Simple ring","Single-link star without redundancy"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"Mesh networks provide multiple paths and can reroute around failures."},{"level":"C2","q":"A university uses central servers to manage accounts and provide shared services to many computers. Which strategy is this?","o":["Client/server","Peer-to-peer","PAN","Bus only"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"Client/server networks rely on central servers to provide services."},{"level":"C2","q":"In a small network every computer has equal authority and can both request and share resources. Which strategy is used?","o":["Peer-to-peer","Client/server only","WAN","VPN"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"P2P networks allow nodes to act as both clients and servers."},{"level":"C2","q":"Employees access an internal private website available only inside their organization. What is this network called?","o":["Intranet","Extranet","Public WAN","PAN"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"An intranet is a private organizational network."},{"level":"C2","q":"A company gives selected suppliers limited access to part of its private network. Which concept best fits?","o":["Extranet","Intranet only","PAN","Bluetooth"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"An extranet provides controlled access to trusted external partners."},{"level":"C2","q":"An organization wants to inspect incoming and outgoing network traffic for suspicious activity. Which technology best fits?","o":["Intrusion detection system (IDS)","Word processor","NIC only","GPS"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"An IDS analyzes network traffic for signs of intrusion."},{"level":"C2","q":"An employee working remotely needs a secure private connection to the organization's network over the Internet. Which technology should be used?","o":["VPN","PAN","DNS only","Bluetooth"],"a":0,"h":"Identify the Chapter 8 concept that best matches the description or situation.","e":"A VPN creates a secure private connection across a public network."}];
+
+let opened=new Set(JSON.parse(localStorage.getItem("cscCh8Opened")||"[]"));
+function saveProgress(){localStorage.setItem("cscCh8Opened",JSON.stringify([...opened]));updateStats()}
+function updateStats(){
+ let best=+localStorage.getItem("cscCh8Best")||0, att=+localStorage.getItem("cscCh8Attempts")||0;
+ document.getElementById("bestScore").textContent=best+"%";document.getElementById("attempts").textContent=att;
+ document.getElementById("mastery").textContent=opened.size+"/8";document.getElementById("progressBar").style.width=(opened.size/8*100)+"%";
+ document.getElementById("progressText").textContent=opened.size===8?"All Chapter 8 learning topics opened. Try the Challenge!":`${opened.size} of 8 learning topics opened.`;
+}
+function go(id){document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll(".navbtn").forEach(x=>x.classList.toggle("active",x.dataset.screen===id));scrollTo(0,0)}
+document.querySelectorAll(".navbtn").forEach(b=>b.onclick=()=>go(b.dataset.screen));
+document.getElementById("topicGrid").innerHTML=topics.map((t,i)=>`<div class="card topic" onclick="openTopic(${i})"><div class="icon">${t.icon}</div><h3>${t.title}</h3><p class="small">Tap to study</p></div>`).join("");
+function openTopic(i){opened.add(i);saveProgress();document.getElementById("lessonBox").innerHTML=`<div class="card flip">${topics[i].html}<div class="heroBtns"><button class="action" onclick="go('practice');startPractice()">Check My Understanding</button></div></div>`;document.getElementById("lessonBox").scrollIntoView({behavior:"smooth"})}
+function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
+function renderQuestion(q,idx,prefix,onAnswered){
+ let opts=q.o.map((x,i)=>`<button class="choice" data-i="${i}">${String.fromCharCode(65+i)}. ${x}</button>`).join("");
+ let html=`<div class="card" id="${prefix}${idx}"><div class="small">Question ${idx+1}</div><h3>${q.q}</h3>${opts}<button class="action hint" onclick="showHint('${prefix}',${idx})">💡 Hint</button><div class="feedback" id="${prefix}f${idx}"></div></div>`;
+ setTimeout(()=>{document.querySelectorAll(`#${prefix}${idx} .choice`).forEach(b=>b.onclick=()=>answer(q,idx,prefix,+b.dataset.i,onAnswered))},0);return html;
+}
+function showHint(prefix,idx){let box=document.getElementById(prefix+"f"+idx), qs=prefix==="p"?practiceQs:challengeQs;box.className="feedback info";box.textContent="Hint: "+qs[idx].h}
+function answer(q,idx,prefix,pick,onAnswered){
+ let card=document.getElementById(prefix+idx);if(card.dataset.done)return;card.dataset.done="1";
+ card.querySelectorAll(".choice").forEach((b,i)=>{b.disabled=true;if(i===q.a)b.classList.add("correct");if(i===pick&&i!==q.a)b.classList.add("wrong")});
+ let f=document.getElementById(prefix+"f"+idx),ok=pick===q.a;f.className="feedback "+(ok?"good":"bad");f.innerHTML=`<b>${ok?"Correct!":"Not quite."}</b> ${q.e}`;onAnswered(ok)
+}
+let practiceQs=[],practiceScore=0,practiceDone=0;
+function startPractice(){practiceQs=shuffle(bank).slice(0,7);practiceScore=0;practiceDone=0;document.getElementById("practiceBox").innerHTML=practiceQs.map((q,i)=>renderQuestion(q,i,"p",practiceAnswered)).join("")}
+function practiceAnswered(ok){practiceDone++;if(ok)practiceScore++;if(practiceDone===practiceQs.length)document.getElementById("practiceBox").insertAdjacentHTML("beforeend",`<div class="card center"><h2>Practice Complete</h2><div class="stat">${practiceScore}/${practiceQs.length}</div><p>${practiceScore>=6?"Excellent recall.":"Review the explanations, then try a new randomized set."}</p><button class="action" onclick="startPractice()">Try Again</button></div>`)}
+let challengeQs=[],challengeScore=0,challengeDone=0;
+function startChallenge(){if(!requireStudent())return;const c1=shuffle(bank.filter(x=>x.level==="C1")).slice(0,15); const c2=shuffle(bank.filter(x=>x.level==="C2")).slice(0,15); challengeQs=shuffle([...c1,...c2]);challengeScore=0;challengeDone=0;document.getElementById("challengeBox").innerHTML=challengeQs.map((q,i)=>renderQuestion(q,i,"c",challengeAnswered)).join("")}
+function challengeAnswered(ok){
+ challengeDone++;if(ok)challengeScore++;
+ if(challengeDone===30){
+   let pct=Math.round((challengeScore/30)*100),best=Math.max(pct,+localStorage.getItem("cscCh8Best")||0),att=(+localStorage.getItem("cscCh8Attempts")||0)+1;
+   localStorage.setItem("cscCh8Best",best);localStorage.setItem("cscCh8Attempts",att);updateStats();
+   let now=new Date(), stamp=now.toLocaleString(), code=submissionCode(student.name,student.id,pct);
+   let studentAttemptKey="cscCh8Attempt_"+student.id, studentAttempt=(+localStorage.getItem(studentAttemptKey)||0)+1;
+   localStorage.setItem(studentAttemptKey,studentAttempt);
+   let status=pct>=80?"Strong mastery":pct>=60?"Good progress":"Review recommended";
+   let result={name:student.name,id:student.id,score:pct,correct:challengeScore,date:stamp,code,topics:opened.size,attempt:studentAttempt};
+   localStorage.setItem("cscCh8LastResult",JSON.stringify(result));
+   document.getElementById("challengeBox").insertAdjacentHTML("beforeend",`
+   <div class="card" id="finalResult">
+    <div class="certificate">
+     <div class="center"><div class="small">CSC134 • COMPUTERS AND INFORMATION PROCESSING</div><h2>Chapter 8 Completion Result</h2><p>Communications and Networks</p></div>
+     <table class="result-table">
+      <tr><th>Student Name</th><td>${escapeHtml(student.name)}</td></tr>
+      <tr><th>Student ID</th><td>${escapeHtml(student.id)}</td></tr>
+      <tr><th>Challenge Score</th><td><b>${pct}% (${challengeScore}/30)</b></td></tr>
+      <tr><th>Learning Topics Opened</th><td>${opened.size}/8</td></tr>
+      <tr><th>Performance</th><td>${status}</td></tr>
+      <tr><th>Attempt Number</th><td>${studentAttempt}</td></tr><tr><th>Completed</th><td>${escapeHtml(stamp)}</td></tr>
+      <tr><th>Submission Code</th><td><b>${code}</b></td></tr>
+     </table>
+     <p class="small">This result was generated by the CSC134 Chapter 8 Interactive Learning App. When central recording is configured, the class record assigns its own authoritative attempt number for each Student ID.</p>
+     <div id="centralStatus" class="syncbox">Preparing lecturer submission…</div>
+     <div class="heroBtns no-print">
+       <button class="action secondary" onclick="resendLast()">↻ Send Again</button>
+       <button class="action" onclick="window.print()">🖨️ Print / Save as PDF</button>
+       <button class="action secondary" onclick="startChallenge()">Try New Challenge</button>
+       <button class="action secondary" onclick="go('home')">Return Home</button>
+     </div>
+    </div>
+   </div>`);
+   document.getElementById("finalResult").scrollIntoView({behavior:"smooth"});sendToLecturer(result);
+ }
+}
+const matchItems=[["Carries data between communicating devices","Communication channel"],["Short-range wireless link often used for headsets","Bluetooth"],["Forwards packets between networks","Router"],["Local network covering a limited area","LAN"],["Topology with devices connected to a central switch","Star"],["Network where nodes have equal authority","Peer-to-peer"],["Private network inside one organization","Intranet"],["Secure private connection over a public network","VPN"]];
+const cats=["Communication channel","Bluetooth","Router","LAN","Star","Peer-to-peer","Intranet","VPN"];
+function buildMatch(){let items=shuffle(matchItems);document.getElementById("matchBox").innerHTML=items.map((x,i)=>`<div class="matchrow"><div>${x[0]}</div><select data-answer="${x[1]}"><option value="">Choose category…</option>${cats.map(c=>`<option>${c}</option>`).join("")}</select></div>`).join("")+`<div class="heroBtns"><button class="action" onclick="checkMatch()">Check Answers</button><button class="action secondary" onclick="buildMatch()">Shuffle</button></div><div id="matchFeedback"></div>`}
+function checkMatch(){let ss=[...document.querySelectorAll("#matchBox select")],n=ss.filter(s=>s.value===s.dataset.answer).length;ss.forEach(s=>s.style.borderColor=s.value===s.dataset.answer?"#22c55e":"#ef4444");document.getElementById("matchFeedback").innerHTML=`<div class="feedback info">You matched <b>${n}/${ss.length}</b> correctly. Green = correct; red = review and try again.</div>`}
+buildMatch();updateStats();loadStudent();
+</script>
+</body></html>
